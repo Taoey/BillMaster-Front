@@ -16,6 +16,20 @@ import '@/assets/icons/iconfont.css'
 /* eslint-disable */
 if (process.env.NODE_ENV !== 'production') require('@/mock')
 
+
+
+//引入自定义全局变量
+import global_ from '@/js/global.js'
+Vue.prototype.GLOBAL = global_
+ // 使用全局变量console.log(this.GLOBAL.BASE_URL)
+
+//引入axios
+import axios from 'axios'
+Vue.prototype.$http= axios
+axios.defaults.baseURL = global_.MOCK_URL
+
+
+
 // 引入echarts
 import echarts from 'echarts'
 Vue.prototype.$echarts = echarts

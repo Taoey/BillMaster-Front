@@ -94,7 +94,7 @@ export default [
           icon: 'md-trending-up',
           title: '支付计划'
         },
-        component: () => import('@/view/bill/statistics.vue')
+        component: () => import('@/view/bill/plan.vue')
       },
     ]
   },

@@ -6,7 +6,7 @@
                 <Card style="margin-bottom: 5px">
                     <div class="search-bar">
                         <Form inline label-position="left" :label-width="60" >
-                            <FormItem label="关键词">
+                            <FormItem label="句子ID">
                                 <Input type="text" placeholder="" style="width:80px">
                                 </Input>
                             </FormItem>
@@ -18,7 +18,7 @@
                                 </Select>
                             </FormItem>
                         </Form>
-                    </div>
+                    </div>            
                 </Card>
                 <Card>
                     <!-- 工具栏 -->
@@ -48,7 +48,7 @@
                     <div>
                         <Table border :columns="columns" :data="columns_data">
                             <template slot-scope="{ row,index }" slot="action">
-                                <Button type="primary" size="small" style="margin-right: 5px" @click="show(index)">查看</Button>
+                                <Button type="primary" size="small" style="margin-right: 5px" @click="show(index)">查看</Button>踹</Button>
                                 <Button type="error" size="small" @click="remove(index)">删除</Button>
                             </template>
                         </Table>
@@ -57,7 +57,7 @@
                     <!-- 分页部分 -->
                     <div>
                         <Page
-                            :total="total"
+                            :total="total" 
                             :page-size="pageSize"
                             @on-change="on_change"
                         >
@@ -113,7 +113,7 @@ export default {
     },
     methods: {
         getPage(num){
-
+            
         },
         on_change(nextNum){
             alert("页面发生变动")
@@ -133,7 +133,7 @@ export default {
         remove (index) {
             this.data6.splice(index, 1);
             alert("删除了第"+index)
-        },
+        },      
     }
 }
 </script>
@@ -141,6 +141,6 @@ export default {
 <style>
 .search-bar{
     height: 30px;
-
+    
 }
 </style>
