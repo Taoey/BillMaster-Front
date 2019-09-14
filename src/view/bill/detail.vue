@@ -39,6 +39,7 @@
           <div>
             <ButtonGroup>
               <Button ><Icon type="ios-pricetag" size="15" /></Button>
+              <Button ><Icon type="md-trash" size="15"/></Button>
             </ButtonGroup>
           </div>
           <br>
@@ -61,14 +62,6 @@
               <!-- 操作按钮 -->
               <template slot-scope="{ row,index }" slot="action">
                 <Button type="primary" size="small">编辑</Button>
-                <Poptip
-                        placement="left"
-                        confirm
-                        title="删除？"
-                        @on-ok="remove(index,row)"
-                >
-                  <Button type="error" size="small">删除</Button>
-                </Poptip>
               </template>
             </Table>
             <br>

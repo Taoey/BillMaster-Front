@@ -2,7 +2,7 @@ import Mock from 'mockjs'
 import { login, logout, getUserInfo } from './login'
 import { getTableData, getDragList } from './data'
 
-import {getBillDetail} from './bill'
+import {getBillDetail, getTags} from './bill'
 
 import global from '@/js/global.js' //加载全局变量
 
@@ -18,6 +18,8 @@ Mock.mock(/\/save_error_logger/, 'success')
 
 //账单详情信息
 Mock.mock(`${domain}/alibill/list.json`,'post',getBillDetail)
+
+Mock.mock(`${domain}/tags/list.json`,'post',getTags)
 
 
 

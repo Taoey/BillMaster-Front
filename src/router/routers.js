@@ -96,6 +96,15 @@ export default [
         },
         component: () => import('@/view/bill/plan.vue')
       },
+      {
+        path: 'tags',
+        name: '账单标签',
+        meta: {
+          icon: 'md-trending-up',
+          title: '账单标签'
+        },
+        component: () => import('@/view/bill/tags.vue')
+      },
     ]
   },
 

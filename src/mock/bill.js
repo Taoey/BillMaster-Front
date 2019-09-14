@@ -33,3 +33,26 @@ export const getBillDetail = req =>{
 
   return result
 }
+
+// 获取tags
+export const getTags = req =>{
+  req = JSON.parse(req.body)
+  console.log("mock获取tags"+req.body)
+
+  let result = Mock.mock({
+    result: {
+      rows:[
+        {
+          name:"发票",
+          color:"#888888"
+        },
+        {
+          name:"饮食",
+          color:"#487888"
+        }
+      ]
+    }
+  })
+
+  return result
+}
