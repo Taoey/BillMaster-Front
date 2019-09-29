@@ -39,7 +39,13 @@
           <div>
             <ButtonGroup>
               <Button ><Icon type="ios-pricetag" size="15" /></Button>
-              <Button ><Icon type="md-trash" size="15"/></Button>
+              <Poptip
+                confirm
+                placement="right-start"
+                title="删除？"
+              >
+                <Button><Icon type="md-trash" size="15"  /></Button>
+              </Poptip>
             </ButtonGroup>
           </div>
           <br>
@@ -58,6 +64,10 @@
               <!--标签-->
               <template slot-scope="{ row,index }" slot="tags">
                 <Tag v-for="tag in row.tags" :color="tag.color">{{tag.name}}</Tag>
+                <Button icon="ios-add" type="dashed" size="small" @click=""></Button>
+                <Input  size="small" :style="`width:${newTagText.length*10+10}px`" v-model="newTagText"></Input>
+                <Input  size="small" style="width: 80px" v-model="newTagText"></Input>
+                {{newTagText.length}}
               </template>
               <!-- 操作按钮 -->
               <template slot-scope="{ row,index }" slot="action">
@@ -88,107 +98,106 @@
       </Col> -->
     </Row>
 
-
   </div>
 </template>
 
 <script>
-  import Calendar from 'vue-calendar-component';
-  export default {
-    mounted () {
-      this.search()
-    },
-    components: {
-      Calendar
-    },
+import Calendar from 'vue-calendar-component'
+export default {
+  mounted () {
+    this.search()
+  },
+  components: {
+    Calendar
+  },
 
-    data(){
-      return{
-        total:11,
-        pageSize:10,
-        searchForm:{
-          goods:""
+  data () {
+    return {
+      total: 80,
+      pageSize: 10,
+      searchForm: {
+        goods: ''
+      },
+      newTagText: '122',
+      columns_data: [],
+      columns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center'
         },
-        columns_data:[],
-        columns: [
-          {
-            type: 'selection',
-            width: 60,
-            align: 'center'
-          },
-          {
-            title: 'ID',
-            key: 'id',
-            width:80
-          },
-          {
-            title: '商品名称',
-            key: 'goods'
-          },
-          {
-            title: '花费金额（元）',
-            key: 'payNum',
-            slot:'payNum'
-          },
-          {
-            title: '标签',
-            key: 'payNum',
-            slot:"tags",
-          },
-          {
-            title: '操作',
-            slot: 'action',
-            width: 150,
-            align: 'center'
-          }
-        ],
-      }
+        {
+          title: 'ID',
+          key: 'id',
+          width: 80
+        },
+        {
+          title: '商品名称',
+          key: 'goods'
+        },
+        {
+          title: '花费金额（元）',
+          key: 'payNum',
+          slot: 'payNum'
+        },
+        {
+          title: '标签',
+          key: 'payNum',
+          slot: 'tags'
+        },
+        {
+          title: '操作',
+          slot: 'action',
+          width: 150,
+          align: 'center'
+        }
+      ]
+    }
+  },
+
+  methods: {
+    getPage (num) {
+
+    },
+    on_change (nextNum) {
+      alert('页面发生变动')
+    },
+    search () {
+      this.$http.post('alibill/list.json', this.searchForm)
+        .then((response) => {
+          console.log(response)
+          this.columns_data = response.data.result.rows
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+    },
+    refresh () {
+      alert('refresh')
+    },
+    show (index) {
+      this.$Modal.info({
+        title: '信息查看',
+        content: `Name：${this.data6[index].name}<br>Age：${this.data6[index].age}<br>Address：${this.data6[index].address}`
+      })
+    },
+    remove (index) {
+      this.data6.splice(index, 1)
+      alert('删除了第' + index)
     },
 
-    methods: {
-      getPage(num){
-
-      },
-      on_change(nextNum){
-        alert("页面发生变动")
-      },
-      search(){
-        this.$http.post('alibill/list.json',this.searchForm)
-          .then((response)=>{
-            console.log(response)
-            this.columns_data = response.data.result.rows
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-
-      },
-      refresh(){
-        alert("refresh")
-      },
-      show (index) {
-        this.$Modal.info({
-          title: '信息查看',
-          content: `Name：${this.data6[index].name}<br>Age：${this.data6[index].age}<br>Address：${this.data6[index].address}`
-        })
-      },
-      remove (index) {
-        this.data6.splice(index, 1);
-        alert("删除了第"+index)
-      },
-
-      clickDay(data) {
-        console.log(data); //选中某天
-      },
-      changeDate(data) {
-        console.log(data); //左右点击切换月份
-      },
-      clickToday(data) {
-        console.log(data); // 跳到了本月
-      }
-
+    clickDay (data) {
+      console.log(data) // 选中某天
+    },
+    changeDate (data) {
+      console.log(data) // 左右点击切换月份
+    },
+    clickToday (data) {
+      console.log(data) // 跳到了本月
     }
+
   }
+}
 </script>
 
 <style>

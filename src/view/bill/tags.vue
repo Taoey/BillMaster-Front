@@ -27,15 +27,21 @@
           <!-- 工具栏 -->
           <div>
             <ButtonGroup>
-              <Button ><Icon type="md-add" size="15" @click="tool_add_button()" /></Button>
-              <Button ><Icon type="md-trash" size="15" @click="tool_delete_button()" /></Button>
+              <Button @click="tool_add_button()" ><Icon type="md-add" size="15"  /></Button>
+              <Poptip
+                confirm
+                placement="right-start"
+                title="删除？"
+              >
+                <Button @click="tool_delete_button()"><Icon type="md-trash" size="15"  /></Button>
+              </Poptip>
             </ButtonGroup>
           </div>
           <br>
 
           <!--新建修改-->
           <div  v-if="modify_show">
-            <Card>
+            <Card style="width: 600px">
               <Form inline  :label-width="50" >
                 <FormItem label="名字：">
                   <Input type="text" placeholder="" style="width:80px" v-model="tagFrom.name"></Input>
@@ -88,7 +94,6 @@
       </Col>
     </Row>
 
-
     <!--弹出框-->
 
     <!--删除确认-->
@@ -108,160 +113,157 @@
       </div>
     </Modal>
 
-
   </div>
 </template>
 
 <script>
-  import Calendar from 'vue-calendar-component';
-  export default {
-    mounted () {
-      this.search()
-    },
-    components: {
-      Calendar
-    },
+import Calendar from 'vue-calendar-component'
+export default {
+  mounted () {
+    this.search()
+  },
+  components: {
+    Calendar
+  },
 
-    data(){
-      return{
-        total:11,
-        pageSize:10,
-        searchForm:{
-          goods:""
+  data () {
+    return {
+      total: 11,
+      pageSize: 10,
+      searchForm: {
+        goods: ''
+      },
+      tagFrom: {
+        color: '#2D8CF0',
+        name: '默认标签',
+        desc: ''
+      },
+      tagAddFlag: true,
+      modify_show: false,
+      modal_delete_show: false,
+
+      columns_data: [],
+      columns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center'
         },
-        tagFrom:{
-          color:"#2D8CF0",
-          name:"默认标签",
-          desc:""
+        {
+          title: '标签',
+          slot: 'tag_show'
         },
-        tagAddFlag:true,
-        modify_show:false,
-        modal_delete_show:false,
-
-        columns_data:[],
-        columns: [
-          {
-            type: 'selection',
-            width: 60,
-            align: 'center'
-          },
-          {
-            title: '标签',
-            slot:'tag_show'
-          },
-          {
-            title: '描述',
-            key: 'desc',
-          },
-          {
-            title: '操作',
-            slot: 'action',
-            width: 150,
-            align: 'center'
-          }
-        ],
-
-      }
-    },
-
-    methods: {
-      getPage(num){
-
-      },
-      tool_add_button(){
-        this.modify_show = true
-        this.tagAddFlag = true
-      },
-
-      tool_delete_button(){
-        this.modal_delete_show = true
-      },
-
-      //标签修改，取消按钮点击事件
-      tagForm_delete_click(){
-        this.modify_show = false
-        //重置form表单
-        this.tagFrom={
-          color:"#2D8CF0",
-          name:"默认标签",
-          desc:""
+        {
+          title: '描述',
+          key: 'desc'
+        },
+        {
+          title: '操作',
+          slot: 'action',
+          width: 150,
+          align: 'center'
         }
-        //修改后端数据 TODO
-
-      },
-
-      //标签修改，保存按钮点击事件
-      tagFrom_save_click(){
-        var tempTag = this.tagFrom
-
-        //判断是新增标签还是修改标签
-        if(this.tagAddFlag == true){
-          this.columns_data.unshift(tempTag)
-        }
-        this.tagAddFlag = true
-        //头部添加
-        //重置form表单
-        this.tagFrom={
-          color:"#2D8CF0",
-          name:"默认标签",
-          desc:""
-        }
-
-        //修改后端数据 TODO
-      },
-
-      //表格编辑按钮点击事件
-      tagTable_edit_click(row,index){
-        this.modify_show = true
-        this.tagFrom = row
-        this.tagAddFlag = false
-      },
-
-      tagTable_on_select(selection,row){
-        console.log(selection,row)
-      },
-
-      on_change(nextNum){
-        alert("页面发生变动")
-      },
-
-      search(){
-        this.$http.post('tags/list.json',this.searchForm)
-          .then((response)=>{
-            console.log(response)
-            this.columns_data = response.data.result.rows
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-
-      },
-      refresh(){
-        alert("refresh")
-      },
-      show (index) {
-        this.$Modal.info({
-          title: '信息查看',
-          content: `Name：${this.data6[index].name}<br>Age：${this.data6[index].age}<br>Address：${this.data6[index].address}`
-        })
-      },
-      remove (index) {
-        this.data6.splice(index, 1);
-        alert("删除了第"+index)
-      },
-
-      clickDay(data) {
-        console.log(data); //选中某天
-      },
-      changeDate(data) {
-        console.log(data); //左右点击切换月份
-      },
-      clickToday(data) {
-        console.log(data); // 跳到了本月
-      }
+      ]
 
     }
+  },
+
+  methods: {
+    getPage (num) {
+
+    },
+    tool_add_button () {
+      this.modify_show = true
+      this.tagAddFlag = true
+    },
+
+    tool_delete_button () {
+      // this.modal_delete_show = true
+    },
+
+    // 标签修改，取消按钮点击事件
+    tagForm_delete_click () {
+      this.modify_show = false
+      // 重置form表单
+      this.tagFrom = {
+        color: '#2D8CF0',
+        name: '默认标签',
+        desc: ''
+      }
+      // 修改后端数据 TODO
+    },
+
+    // 标签修改，保存按钮点击事件
+    tagFrom_save_click () {
+      var tempTag = this.tagFrom
+
+      // 判断是新增标签还是修改标签
+      if (this.tagAddFlag == true) {
+        this.columns_data.unshift(tempTag)
+      }
+      this.tagAddFlag = true
+      // 头部添加
+      // 重置form表单
+      this.tagFrom = {
+        color: '#2D8CF0',
+        name: '默认标签',
+        desc: ''
+      }
+
+      // 修改后端数据 TODO
+    },
+
+    // 表格编辑按钮点击事件
+    tagTable_edit_click (row, index) {
+      this.modify_show = true
+      this.tagFrom = row
+      this.tagAddFlag = false
+    },
+
+    tagTable_on_select (selection, row) {
+      console.log(selection, row)
+    },
+
+    on_change (nextNum) {
+      alert('页面发生变动')
+    },
+
+    search () {
+      this.$http.post('tags/list.json', this.searchForm)
+        .then((response) => {
+          console.log(response)
+          this.columns_data = response.data.result.rows
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+    },
+    refresh () {
+      alert('refresh')
+    },
+    show (index) {
+      this.$Modal.info({
+        title: '信息查看',
+        content: `Name：${this.data6[index].name}<br>Age：${this.data6[index].age}<br>Address：${this.data6[index].address}`
+      })
+    },
+    remove (index) {
+      this.data6.splice(index, 1)
+      alert('删除了第' + index)
+    },
+
+    clickDay (data) {
+      console.log(data) // 选中某天
+    },
+    changeDate (data) {
+      console.log(data) // 左右点击切换月份
+    },
+    clickToday (data) {
+      console.log(data) // 跳到了本月
+    }
+
   }
+}
 </script>
 
 <style>
