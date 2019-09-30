@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{columns_data}}
     <Row :gutter="10">
       <Col :span='24'>
         <!-- 搜索框操控组件 -->
@@ -65,9 +66,9 @@
               <template slot-scope="{ row,index }" slot="tags">
                 <Tag v-for="tag in row.tags" :color="tag.color">{{tag.name}}</Tag>
                 <Button icon="ios-add" type="dashed" size="small" @click=""></Button>
-                <Input  size="small" :style="`width:${newTagText.length*10+10}px`" v-model="newTagText"></Input>
-                <Input  size="small" style="width: 80px" v-model="newTagText"></Input>
+                <Input  size="small"  type="text" :style="`width:${newTagText.length*10+30}px`" v-model="newTagText" @on-blur="addTagChange()"></Input>
                 {{newTagText.length}}
+                {{newTagWidth}}
               </template>
               <!-- 操作按钮 -->
               <template slot-scope="{ row,index }" slot="action">
@@ -118,7 +119,8 @@ export default {
       searchForm: {
         goods: ''
       },
-      newTagText: '122',
+      newTagText: '',
+      newTagWidth: '30',
       columns_data: [],
       columns: [
         {
@@ -194,6 +196,21 @@ export default {
     },
     clickToday (data) {
       console.log(data) // 跳到了本月
+    },
+    addTagChange () {
+      // 保存标签
+      // let scrollWidth = this.$refs.addTagInput.scrollWidth;
+      // this.newTagWidth = scrollWidth
+      this.columns_data[0].tags.push({ 'name': '发票11', 'color': this.getRandomColor()})
+    },
+
+    getRandomColor () {
+      var colorArr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+      var color = ''
+      for (var i = 0; i < 6; i++) {
+        color += colorArr[Math.floor(Math.random() * 15)]
+      }
+      return '#' + color
     }
 
   }
