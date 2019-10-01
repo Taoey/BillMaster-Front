@@ -16,6 +16,7 @@ export const getBillDetail = req =>{
           "id|+1":0,
           "goods|+1":0,
           payNum:12,
+          newTagText:"",
           tags:[
             {
               name:"发票",

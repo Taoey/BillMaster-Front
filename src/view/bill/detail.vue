@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{columns_data}}
     <Row :gutter="10">
       <Col :span='24'>
         <!-- 搜索框操控组件 -->
@@ -16,6 +15,11 @@
                   <Option :value="-1">全部</Option>
                   <Option :value="1">支付宝</Option>
                   <Option :value="0">微信</Option>
+                </Select>
+              </FormItem>
+              <FormItem label="标签：">
+                <Select multiple :value="-1">
+                  <Option v-for="i in 10"  :value="i">支付宝</Option>
                 </Select>
               </FormItem>
               <ButtonGroup >
@@ -65,10 +69,16 @@
               <!--标签-->
               <template slot-scope="{ row,index }" slot="tags">
                 <Tag v-for="tag in row.tags" :color="tag.color">{{tag.name}}</Tag>
-                <Button icon="ios-add" type="dashed" size="small" @click=""></Button>
-                <Input  size="small"  type="text" :style="`width:${newTagText.length*10+30}px`" v-model="newTagText" @on-blur="addTagChange()"></Input>
-                {{newTagText.length}}
-                {{newTagWidth}}
+                <!--<Button icon="ios-add" type="dashed" size="small" @click=""></Button>-->
+                <!--<Input  size="small"  type="text" :style="`width:${newTagText.length*10+30}px`" v-model="newTagText" @on-blur="addTagChange(row,index)"></Input>-->
+                <Input size="small"  type="text" :style="`width:${row.newTagText.length*10+30}px`" v-model="row.newTagText" @on-blur="addTagChange(row,index)"></Input>
+              </template>
+              <!--账单进度-->
+              <template slot-scope="{ row,index }" slot="billStep">
+                <Tag>未支付</Tag>
+                <!--<Tag>已支付</Tag>-->
+                <!--<Tag>发起退款</Tag>-->
+                <!--<Tag>已退款</Tag>-->
               </template>
               <!-- 操作按钮 -->
               <template slot-scope="{ row,index }" slot="action">
@@ -99,6 +109,17 @@
       </Col> -->
     </Row>
 
+    <Modal v-model="modal_tag_bill_show"
+           title="打标签"
+           width="350"
+    >
+      <div>
+        <CheckboxGroup >
+          <Checkbox v-for="i in 15"><Tag color="success">发票</Tag></Checkbox>
+        </CheckboxGroup>
+      </div>
+    </Modal>
+
   </div>
 </template>
 
@@ -119,8 +140,8 @@ export default {
       searchForm: {
         goods: ''
       },
-      newTagText: '',
-      newTagWidth: '30',
+      modal_tag_bill_show:true,
+      newTagWidth:'30',
       columns_data: [],
       columns: [
         {
@@ -159,7 +180,6 @@ export default {
 
   methods: {
     getPage (num) {
-
     },
     on_change (nextNum) {
       alert('页面发生变动')
@@ -197,13 +217,21 @@ export default {
     clickToday (data) {
       console.log(data) // 跳到了本月
     },
-    addTagChange () {
+    addTagChange (row,index) {
       // 保存标签
       // let scrollWidth = this.$refs.addTagInput.scrollWidth;
       // this.newTagWidth = scrollWidth
-      this.columns_data[0].tags.push({ 'name': '发票11', 'color': this.getRandomColor()})
+      var color = this.getRandomColor()
+      if(row.newTagText !=""){
+        this.columns_data[index].tags.push({ 'name': row.newTagText, 'color': color})
+        row.newTagText = ""
+      }
+
+      // 发送post请求进行数据持久化
+      //TODO
     },
 
+    //生成随机颜色
     getRandomColor () {
       var colorArr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
       var color = ''
@@ -213,8 +241,8 @@ export default {
       return '#' + color
     }
 
+    }
   }
-}
 </script>
 
 <style>
