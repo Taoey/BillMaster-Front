@@ -1,5 +1,6 @@
 <template>
   <div>
+  {{selectionData}}
     <Row :gutter="10">
       <Col :span='24'>
         <!-- 搜索框操控组件 -->
@@ -61,6 +62,10 @@
                    :columns="columns"
                    :data="columns_data"
                    ref="selection"
+                   @on-select="tabRowOnSelect"
+                   @on-select-cancel="tabRowOnSelect"
+                   @on-select-all="tabRowOnSelect"
+                   @on-select-all-cancel="tabRowOnSelect"
             >
               <template slot-scope="{ row,index }" slot="payNum">
                 {{row.payNum/100}}
@@ -141,6 +146,7 @@ export default {
         goods: ''
       },
       modal_tag_bill_show:true,
+      selectionData:[],
       newTagWidth:'30',
       columns_data: [],
       columns: [
@@ -217,6 +223,8 @@ export default {
     clickToday (data) {
       console.log(data) // 跳到了本月
     },
+
+    //新建标签
     addTagChange (row,index) {
       // 保存标签
       // let scrollWidth = this.$refs.addTagInput.scrollWidth;
@@ -229,6 +237,11 @@ export default {
 
       // 发送post请求进行数据持久化
       //TODO
+    },
+
+    //选中一个checkbox
+    tabRowOnSelect(selection,row){
+      this.selectionData = selection
     },
 
     //生成随机颜色
