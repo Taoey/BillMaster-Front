@@ -26,7 +26,7 @@ Vue.prototype.GLOBAL = global_
 //引入axios
 import axios from 'axios'
 Vue.prototype.$http= axios
-axios.defaults.baseURL = global_.MOCK_URL
+axios.defaults.baseURL = global_.BASE_URL
 
 
 

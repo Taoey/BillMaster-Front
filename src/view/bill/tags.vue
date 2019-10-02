@@ -1,5 +1,6 @@
 <template>
   <div>
+  {{temp}}
     <Row :gutter="10">
       <Col :span='24'>
         <!-- 搜索框操控组件 -->
@@ -24,72 +25,79 @@
           </div>
         </Card>
         <Card>
-          <!-- 工具栏 -->
-          <div>
-            <ButtonGroup>
-              <Button @click="tool_add_button()" ><Icon type="md-add" size="15"  /></Button>
-              <Poptip
-                confirm
-                placement="right-start"
-                title="删除？"
-              >
-                <Button @click="tool_delete_button()"><Icon type="md-trash" size="15"  /></Button>
-              </Poptip>
-            </ButtonGroup>
-          </div>
-          <br>
-
-          <!--新建修改-->
-          <div  v-if="modify_show">
-            <Card style="width: 600px">
-              <Form inline  :label-width="50" >
-                <FormItem label="名字：">
-                  <Input type="text" placeholder="" style="width:80px" v-model="tagFrom.name"></Input>
-                </FormItem>
-                <FormItem label="颜色：">
-                  <ColorPicker v-model="tagFrom.color" />
-                </FormItem>
-                <FormItem label="描述：">
-                  <Input type="text" placeholder="" style="width:80px"  v-model="tagFrom.desc"></Input>
-                </FormItem>
-                <ButtonGroup >
-                  <Button @click="tagFrom_save_click" type="primary">保存</Button>
-                  <Button @click="tagForm_delete_click" type="error">取消</Button>
+          <Row :gutter="10">
+            <Col :span="3">
+              <Tree :data="tagTreeData" :load-data="treeLoadData" @on-select-change="onSelectChange"></Tree>
+            </Col>
+            <Col :span="15">
+              <!-- 工具栏 -->
+              <div>
+                <ButtonGroup>
+                  <Button @click="tool_add_button()" ><Icon type="md-add" size="15"  /></Button>
+                  <Poptip
+                          confirm
+                          placement="right-start"
+                          title="删除？"
+                  >
+                    <Button @click="tool_delete_button()"><Icon type="md-trash" size="15"  /></Button>
+                  </Poptip>
                 </ButtonGroup>
-              </Form>
-              <Tag :color="tagFrom.color">{{tagFrom.name}}</Tag>
-            </Card>
-          </div>
-          <!-- 表格显示部分 -->
-          <div>
-            <Table border
-                   stripe
-                   width="600"
-                   :columns="columns"
-                   :data="columns_data"
-                   ref="selection"
-                   @on-select="tagTable_on_select"
-            >
-              <!--标签展示-->
-              <template slot-scope="{ row,index }" slot="tag_show">
-                <Tag :color="row.color">{{row.name}}</Tag>
-              </template>
-              <!-- 操作按钮 -->
-              <template slot-scope="{ row,index }" slot="action">
-                <Button type="primary" size="small" @click="tagTable_edit_click(row,index)">编辑</Button>
-              </template>
-            </Table>
-            <br>
-          </div>
-          <!-- 分页部分 -->
-          <div>
-            <Page
-                    :total="total"
-                    :page-size="pageSize"
-                    @on-change="on_change"
-            >
-            </Page>
-          </div>
+              </div>
+              <br>
+              <!--新建修改-->
+              <div  v-if="modify_show">
+                <Card style="width: 600px">
+                  <Form inline  :label-width="50" >
+                    <FormItem label="名字：">
+                      <Input type="text" placeholder="" style="width:80px" v-model="tagFrom.name"></Input>
+                    </FormItem>
+                    <FormItem label="颜色：">
+                      <ColorPicker v-model="tagFrom.color" />
+                    </FormItem>
+                    <FormItem label="描述：">
+                      <Input type="text" placeholder="" style="width:80px"  v-model="tagFrom.desc"></Input>
+                    </FormItem>
+                    <ButtonGroup >
+                      <Button @click="tagFrom_save_click" type="primary">保存</Button>
+                      <Button @click="tagForm_delete_click" type="error">取消</Button>
+                    </ButtonGroup>
+                  </Form>
+                  <Tag :color="tagFrom.color">{{tagFrom.name}}</Tag>
+                </Card>
+              </div>
+              <!-- 表格显示部分 -->
+              <div>
+                <Table border
+                       stripe
+                       width="600"
+                       :columns="columns"
+                       :data="columns_data"
+                       ref="selection"
+                       @on-select="tagTable_on_select"
+                >
+                  <!--标签展示-->
+                  <template slot-scope="{ row,index }" slot="tag_show">
+                    <Tag :color="row.color">{{row.name}}</Tag>
+                  </template>
+                  <!-- 操作按钮 -->
+                  <template slot-scope="{ row,index }" slot="action">
+                    <Button type="primary" size="small" @click="tagTable_edit_click(row,index)">编辑</Button>
+                  </template>
+                </Table>
+                <br>
+              </div>
+              <!-- 分页部分 -->
+              <div>
+                <Page
+                        :total="total"
+                        :page-size="pageSize"
+                        @on-change="on_change"
+                >
+                </Page>
+              </div>
+            </Col>
+          </Row>
+
         </Card>
       </Col>
     </Row>
@@ -118,16 +126,18 @@
 
 <script>
 import Calendar from 'vue-calendar-component'
+
 export default {
   mounted () {
     this.search()
   },
   components: {
-    Calendar
+    Calendar,
   },
 
   data () {
     return {
+      temp:[],
       total: 11,
       pageSize: 10,
       searchForm: {
@@ -141,6 +151,14 @@ export default {
       tagAddFlag: true,
       modify_show: false,
       modal_delete_show: false,
+      tagTreeData: [
+        {
+          title:"标签列表",
+          loading:false,
+          children:[],
+          id:0,
+        }
+      ],
 
       columns_data: [],
       columns: [
@@ -154,8 +172,8 @@ export default {
           slot: 'tag_show'
         },
         {
-          title: '描述',
-          key: 'desc'
+          title: '使用量',
+          key: 'useNum'
         },
         {
           title: '操作',
@@ -212,7 +230,35 @@ export default {
 
       // 修改后端数据 TODO
     },
-
+    // 树形控件异步展开事件  item：当前点击的TreeNode callback：需要返回的值, 需要设置同步（否则无效）
+    async treeLoadData(item,callback) {
+        console.log(item)
+        // var data1 = [
+        //       {
+        //           title: 'children',
+        //           loading: false,
+        //           children: []
+        //       },
+        //       {
+        //           title: 'children',
+        //           loading: false,
+        //           children: []
+        //       }
+        //   ]
+        var data = []
+        var res = await this.$http.post('tag/list.json', {pid: item.id})
+        var rows = res.data.result.rows
+        for(var i=0;i<rows.length;i++){
+          var tempTreeNode={
+              title:rows[i].name,
+              loading: false,
+              children:[],
+              id:rows[i].id
+          }
+          data.push(tempTreeNode)
+        }
+        callback(data)
+    },
     // 表格编辑按钮点击事件
     tagTable_edit_click (row, index) {
       this.modify_show = true
@@ -223,13 +269,17 @@ export default {
     tagTable_on_select (selection, row) {
       console.log(selection, row)
     },
+    onSelectChange(treeNode){
+      console.log(treeNode)
+    },
+
 
     on_change (nextNum) {
       alert('页面发生变动')
     },
 
     search () {
-      this.$http.post('tags/list.json', this.searchForm)
+      this.$http.post('tag/list.json', this.searchForm)
         .then((response) => {
           console.log(response)
           this.columns_data = response.data.result.rows
