@@ -1,54 +1,62 @@
 <template>
   <div>
-  {{selectionData}}
+  <!--{{allTagList}}-->
+  <!--{{modalTagSelection}}-->
+  <!--{{selectionData}}-->
+  <!--{{columns_data}}-->
     <Row :gutter="10">
       <Col :span='24'>
         <!-- 搜索框操控组件 -->
-        <Card style="margin-bottom: 5px">
-          <div class="search-bar">
-            <Form inline label-position="left" :label-width="60" >
-              <FormItem label="关键词">
-                <Input type="text" v-model="searchForm.goods" placeholder="" style="width:80px">
-                </Input>
-              </FormItem>
-              <FormItem label="支付方式" >
-                <Select :value="-1">
-                  <Option :value="-1">全部</Option>
-                  <Option :value="1">支付宝</Option>
-                  <Option :value="0">微信</Option>
-                </Select>
-              </FormItem>
-              <FormItem label="标签：">
-                <Select multiple :value="-1">
-                  <Option v-for="i in 10"  :value="i">支付宝</Option>
-                </Select>
-              </FormItem>
-              <ButtonGroup >
-                <Button @click="search()"><Icon type="md-search" /></Button>
-              </ButtonGroup>
+        <Card style="margin-bottom: 5px;">
+            <div class="search-bar">
+              <Form inline label-position="left" :label-width="60" >
+                <FormItem label="关键词">
+                  <Input type="text" v-model="searchForm.goods" placeholder="" style="width:80px">
+                  </Input>
+                </FormItem>
+                <FormItem label="支付方式" >
+                  <Select :value="-1">
+                    <Option :value="-1">全部</Option>
+                    <Option :value="1">支付宝</Option>
+                    <Option :value="0">微信</Option>
+                  </Select>
+                </FormItem>
+                <FormItem label="标签：">
+                  <Select multiple :value="-1">
+                    <Option v-for="i in 10"  :value="i">支付宝</Option>
+                  </Select>
+                </FormItem>
+                <ButtonGroup >
+                  <Button @click="search()"><Icon type="md-search" /></Button>
+                </ButtonGroup>
 
-              <FormItem>
-                <Upload action="">
-                  <Button  type="success" icon="ios-cloud-upload-outline">微信</Button>
-                </Upload>
-              </FormItem>
-              <FormItem>
-                <Upload action="">
-                  <Button type="primary" icon="ios-cloud-upload-outline">支付宝</Button>
-                </Upload>
-              </FormItem>
-            </Form>
-          </div>
-        </Card>
+                <FormItem>
+                  <Upload action="">
+                    <Button  type="success" icon="ios-cloud-upload-outline">微信</Button>
+                  </Upload>
+                </FormItem>
+                <FormItem>
+                  <Upload action="http://127.0.0.1:8900/upload/ali_bill">
+                    <Button type="primary" icon="ios-cloud-upload-outline">支付宝</Button>
+                  </Upload>
+                </FormItem>
+              </Form>
+            </div>
+          </Card>
+
+
+
         <Card>
           <!-- 工具栏 -->
           <div>
             <ButtonGroup>
-              <Button ><Icon type="ios-pricetag" size="15" /></Button>
+              <!--打标签工具-->
+              <Button @click="clickTagTool"><Icon type="ios-pricetag" size="15" /></Button>
+              <!--删除工具-->
               <Poptip
-                confirm
-                placement="right-start"
-                title="删除？"
+                      confirm
+                      placement="right-start"
+                      title="删除？"
               >
                 <Button><Icon type="md-trash" size="15"  /></Button>
               </Poptip>
@@ -68,9 +76,13 @@
                    @on-select-all-cancel="tabRowOnSelect"
             >
               <template slot-scope="{ row,index }" slot="payNum">
-                {{row.payNum/100}}
+                <span v-if="row.incomeType>0">+{{row.payNum/100}}</span>
+                <span v-if="row.incomeType<0">-{{row.payNum/100}}</span>
+                <span v-if="row.incomeType==0">内部流转: {{row.payNum/100}}</span>
               </template>
-
+              <template slot-scope="{row,index}" slot="payCreatTime">
+                <span>{{row.payCreatTime*1000|formatDate}}</span>
+              </template>
               <!--标签-->
               <template slot-scope="{ row,index }" slot="tags">
                 <Tag v-for="tag in row.tags" :color="tag.color">{{tag.name}}</Tag>
@@ -117,35 +129,50 @@
     <Modal v-model="modal_tag_bill_show"
            title="打标签"
            width="350"
+           @on-ok="tagModalOnOK"
     >
       <div>
-        <CheckboxGroup >
-          <Checkbox v-for="i in 15"><Tag color="success">发票</Tag></Checkbox>
+        <CheckboxGroup v-model="modalTagSelection">
+          <Checkbox v-for="item in allTagList" :label="item.id">
+            <Tag :color="item.color">{{item.name}}</Tag>
+          </Checkbox>
         </CheckboxGroup>
       </div>
     </Modal>
-
+    <template>
+      <BackTop></BackTop>
+    </template>
   </div>
 </template>
 
 <script>
 import Calendar from 'vue-calendar-component'
+import {formatDate} from '@/js/common.js'
 export default {
   mounted () {
     this.search()
+    this.getAllTags()
   },
   components: {
     Calendar
   },
 
+  filters: {
+      formatDate(time) {
+          var date = new Date(time);
+          return formatDate(date, 'yyyy-MM-dd hh:mm:ss');
+      }
+  },
   data () {
     return {
-      total: 80,
-      pageSize: 10,
+      total: 0,
+      pageSize: 50,
       searchForm: {
         goods: ''
       },
-      modal_tag_bill_show:true,
+      allTagList:[],
+      modalTagSelection:[],
+      modal_tag_bill_show:false,
       selectionData:[],
       newTagWidth:'30',
       columns_data: [],
@@ -165,9 +192,23 @@ export default {
           key: 'goods'
         },
         {
-          title: '花费金额（元）',
+            title: '交易方',
+            key: 'trader'
+        },
+        {
+            title: '交易创建时间',
+            key:'payCreatTime',
+            slot:'payCreatTime'
+        },
+        {
+          title: '花费金额/元',
           key: 'payNum',
-          slot: 'payNum'
+          slot: 'payNum',
+          sortable: true
+        },
+        {
+            title: '备注',
+            key: 'remark'
         },
         {
           title: '标签',
@@ -185,16 +226,41 @@ export default {
   },
 
   methods: {
+
+  // modal 打标签确定事件
+  async tagModalOnOK(){
+      var data = {}
+      var billIdList = []
+      data.tagIdList = this.modalTagSelection
+      for(var i=0;i<this.selectionData.length;i++){
+          billIdList.push(this.selectionData[i].id)
+      }
+      data.billIdList = billIdList
+      this.$http.post("tag/join_bill",data)
+    },
+    // modal 中获取全部标签
+    getAllTags(){
+      this.$http.post("tag/list.json",{}).then((res)=>{
+        console.log(res)
+        this.allTagList= res.data.result.rows
+      })
+    },
     getPage (num) {
     },
     on_change (nextNum) {
-      alert('页面发生变动')
+      this.searchForm.page = nextNum
+      this.searchForm.pageSize = this.pageSize
+      this.search()
     },
     search () {
+      this.searchForm.pageSize = this.pageSize
       this.$http.post('alibill/list.json', this.searchForm)
         .then((response) => {
-          console.log(response)
+          this.total = response.data.result.total
           this.columns_data = response.data.result.rows
+          for(var i=0;i<this.columns_data.length;i++){
+            this.columns_data[i].newTagText = ""
+          }
         })
         .catch(function (error) {
           console.log(error)
@@ -231,19 +297,22 @@ export default {
       // this.newTagWidth = scrollWidth
       var color = this.getRandomColor()
       if(row.newTagText !=""){
+        // 发送post请求进行数据持久化  标签存在，添加记录；标签不存在，新建标签并添加记录
         this.columns_data[index].tags.push({ 'name': row.newTagText, 'color': color})
         row.newTagText = ""
       }
 
-      // 发送post请求进行数据持久化
-      //TODO
+
     },
 
     //选中一个checkbox
     tabRowOnSelect(selection,row){
       this.selectionData = selection
     },
-
+    clickTagTool(){
+      this.modal_tag_bill_show = true
+      this.modalTagSelection = []
+    },
     //生成随机颜色
     getRandomColor () {
       var colorArr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
@@ -253,7 +322,6 @@ export default {
       }
       return '#' + color
     }
-
     }
   }
 </script>
