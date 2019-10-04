@@ -1,6 +1,6 @@
 <template>
   <div>
-  {{temp}}
+  {{tagFrom}}
     <Row :gutter="10">
       <Col :span='24'>
         <!-- 搜索框操控组件 -->
@@ -8,7 +8,7 @@
           <div class="search-bar">
             <Form inline label-position="left" :label-width="60" >
               <FormItem label="关键词">
-                <Input type="text" v-model="searchForm.goods" placeholder="" style="width:80px">
+                <Input type="text" v-model="searchForm.name" placeholder="" style="width:80px">
                 </Input>
               </FormItem>
               <!--<FormItem label="支付方式" >-->
@@ -29,7 +29,7 @@
             <Col :span="3">
               <Tree :data="tagTreeData" :load-data="treeLoadData" @on-select-change="onSelectChange"></Tree>
             </Col>
-            <Col :span="15">
+            <Col :span="20">
               <!-- 工具栏 -->
               <div>
                 <ButtonGroup>
@@ -46,7 +46,7 @@
               <br>
               <!--新建修改-->
               <div  v-if="modify_show">
-                <Card style="width: 600px">
+                <Card style="width: 700px">
                   <Form inline  :label-width="50" >
                     <FormItem label="名字：">
                       <Input type="text" placeholder="" style="width:80px" v-model="tagFrom.name"></Input>
@@ -54,8 +54,8 @@
                     <FormItem label="颜色：">
                       <ColorPicker v-model="tagFrom.color" />
                     </FormItem>
-                    <FormItem label="描述：">
-                      <Input type="text" placeholder="" style="width:80px"  v-model="tagFrom.desc"></Input>
+                    <FormItem label="pid：">
+                      <Input type="text" placeholder="" style="width:80px"  v-model="tagFrom.pid"></Input>
                     </FormItem>
                     <ButtonGroup >
                       <Button @click="tagFrom_save_click" type="primary">保存</Button>
@@ -69,7 +69,7 @@
               <div>
                 <Table border
                        stripe
-                       width="600"
+                       width="700"
                        :columns="columns"
                        :data="columns_data"
                        ref="selection"
@@ -141,12 +141,12 @@ export default {
       total: 11,
       pageSize: 10,
       searchForm: {
-        goods: ''
+        name: ''
       },
       tagFrom: {
         color: '#2D8CF0',
         name: '默认标签',
-        desc: ''
+        pid:0
       },
       tagAddFlag: true,
       modify_show: false,
@@ -174,6 +174,18 @@ export default {
         {
           title: '使用量',
           key: 'useNum'
+        },
+        {
+            title: '颜色',
+            key: 'color'
+        },
+        {
+            title: 'id',
+            key: 'id'
+        },
+        {
+            title: 'pid',
+            key: 'pid'
         },
         {
           title: '操作',
@@ -216,10 +228,13 @@ export default {
       var tempTag = this.tagFrom
 
       // 判断是新增标签还是修改标签
-      if (this.tagAddFlag == true) {
+      if (this.tagAddFlag == true) { //新增
         this.columns_data.unshift(tempTag)
+        this.$http.post("tag/create.json",this.tagFrom)
+      }else{ //修改
+          this.$http.post("tag/update.json",this.tagFrom)
       }
-      this.tagAddFlag = true
+      this.tagAddFlag = true //默认新增
       // 头部添加
       // 重置form表单
       this.tagFrom = {
@@ -229,6 +244,7 @@ export default {
       }
 
       // 修改后端数据 TODO
+
     },
     // 树形控件异步展开事件  item：当前点击的TreeNode callback：需要返回的值, 需要设置同步（否则无效）
     async treeLoadData(item,callback) {
@@ -269,11 +285,15 @@ export default {
     tagTable_on_select (selection, row) {
       console.log(selection, row)
     },
-    onSelectChange(treeNode){
-      console.log(treeNode)
+    //树形控件子节点选中事件
+    async onSelectChange(treeNodelist,treeNode){
+      this.tagFrom.pid = treeNode.id
+        this.$http.post('tag/list.json', {pid:treeNode.id})
+            .then((res)=>{
+              this.columns_data = res.data.result.rows
+              }
+            )
     },
-
-
     on_change (nextNum) {
       alert('页面发生变动')
     },
