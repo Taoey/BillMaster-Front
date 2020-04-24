@@ -18,7 +18,7 @@ import parentView from '@/components/parent-view'
 
 export default [
   {
-    path: '/login',
+    path: '/ui/login',
     name: 'login',
     meta: {
       title: 'Login - 登录',
@@ -27,9 +27,9 @@ export default [
     component: () => import('@/view/login/login.vue')
   },
   {
-    path: '/',
+    path: '/ui/',
     name: '_home',
-    redirect: '/home',
+    redirect: '/ui/home',
     component: Main,
     meta: {
       hideInMenu: true,
@@ -37,7 +37,7 @@ export default [
     },
     children: [
       {
-        path: '/home',
+        path: '/ui/home',
         name: 'home',
         meta: {
           hideInMenu: true,
@@ -60,7 +60,7 @@ export default [
   },
   //   账单管理
   {
-    path: '/bill',
+    path: '/ui/bill',
     name: 'bill',
     component: Main,
     meta: {
@@ -104,7 +104,7 @@ export default [
           title: '账单标签'
         },
         component: () => import('@/view/bill/tags.vue')
-      },
+      }
     ]
   },
 
